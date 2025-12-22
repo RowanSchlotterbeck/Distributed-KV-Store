@@ -1,0 +1,63 @@
+Min Requirements:
+
+Client/server over TCP
+
+Put/Get/Delete
+
+Threaded request handling
+
+Persistence (WAL or snapshot)
+
+Basic fault tolerance
+
+If we can:
+
+Consistent hashing
+
+Replication
+
+Leader election (Raft-lite)
+
+Benchmarks (latency + throughput)
+
+Trade offs:
+
+Using asio instead of Posix or Winsock: 
+
+    Being on a Unix-based MacOS system, my first thought with socket programming espically in C++ 
+    is to use the Berkeley (Posix) library for my sockets. However, considering scalability, 
+    security, and cross-platform concerns I have decided to use Asio. 
+    
+    While Berkeley sockets are fine for a small number of connections, concurrency and performance 
+    issues start to mount up as the number of connections increases. Since the Berkeley sockets were 
+    developed at a time when connecting a large network of machines was not exactly a priority, they 
+    can have severe concurreny issues that can lead to unpredictable behavior. The "create a thread for 
+    each new connection" model doesn't exactly work for the Berkeley sockets because it leads to high 
+    memory consumption for thread stacks and frequent context switching. 
+
+    Asio is built as a non-blocking asynchronous API that is meant to address the performance issues
+    found in the Berkely socket's model of thread per connection. Inseated of manually polling each
+    thread until it responds (blocking model), Asio uses powerful context tools to distribute work 
+    efficently across threads. Asio also helps handle memory management with the use of smart buffers, 
+    which optimize I/O operations and contribute to smoother data flow. 
+
+    Another concern that I had with using the Berkeley sockets was security. Berekley sockets, by 
+    defualt, transmit data in plaintext, which makes them particularly vunerable to eavesdropping 
+    on networks. The Berkeley sockets also lack input validation, which can lead to injection or cross 
+    site scripting attacks from bad actors. Furthermore, the Berekely sockets are devoid of advanced 
+    authentication, which could lead to unauthorized access to services. Of course, there are a lot 
+    of ways to mitigate these concerns with the Berekely sockets, such as using a TLS/SSL layer on 
+    top of the sockets and forcing strict input validation yourself, but it would be much easier if
+    there was something that could abstract these concerns. 
+
+    (How asio address securtiy concerns)
+
+    (Cross-platform issues when using platform-specific APIs)
+
+    (How asio address cross-platform concerns)
+
+    (trade offs with using asio)
+
+
+
+

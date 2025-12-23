@@ -2,9 +2,8 @@
 #include <unordered_map>
 #include <sstream>
 #include <string>
-#include <vector>
-#include <cctype>
 #include <algorithm>
+
 
 
 // Inserts a key, value pair into the map
@@ -14,26 +13,33 @@ void put(std::unordered_map<std::string, std::string>& map, const std::string& k
 }
 
 // Retrieves a value given its key
-void get(const std::unordered_map<std::string, std::string>& map, const std::string& key)
+std::optional<std::string> get(const std::unordered_map<std::string, std::string>& map, const std::string& key)
 {
     const auto it = map.find(key);
 
-    if (it != map.end())
-    {
-        std::cout << it -> first << " => " << it -> second << "\n";
-    }
-    else
-    {
-        std::cout << key << " not found in map" << std::endl;
-    }
+    if (it == map.end()) return std::nullopt;
+
+    return it -> second;
 }
 
 // Deletes a key
-void del(std::unordered_map<std::string, std::string>& map, const std::string& key)
+std::string del(std::unordered_map<std::string, std::string>& map, const std::string& key)
 {
-    map.erase(key);
+    const auto it = map.find(key);
+
+    if (it == map.end())
+    {
+        return "NOT_FOUND";
+    }
+    else
+    {
+        map.erase(it -> first);
+        return "OK";
+    }
+
 }
 
+// Prints the map
 void print_map(const std::unordered_map<std::string, std::string>& map)
 {
     std::cout << "\n";
@@ -43,11 +49,14 @@ void print_map(const std::unordered_map<std::string, std::string>& map)
     std::cout << "\n";
 }
 
+// Turns any string into uppercase
 static std::string to_upper(std::string s)
 {
     std::transform(s.begin(), s.end(), s.begin(),[](unsigned char c){ return std::toupper(c); });
     return s;
 }
+
+
 
 int main ()
 {
@@ -73,51 +82,54 @@ int main ()
             break;
         }
 
-        std::vector<std::string> args;
-        std::string argument;
+        std::string key;
+        std::string value;
 
-        while (ss >> argument)
-        {
-            args.push_back(argument);
-        }
+        ss >> key;
+        std::getline(ss >> std::ws, value);
 
         if (command == "PUT")
         {
-            if (args.size() != 2)
+            if (key.empty() || value.empty())
             {
                 std::cout<< "Invalid arguments, correct use: PUT <key> <value>" << std::endl;
             } else
             {
-                put(umap, args[0], args[1]);
+                put(umap, key, value);
             }
 
-            print_map(umap);
+
 
         } else if (command == "GET")
         {
-            if (args.size() != 1)
+            if (key.empty())
             {
                 std::cout<< "Invalid arguments, correct use: GET <key>" << std::endl;
             } else
             {
-                get(umap, args[0]);
+                const auto retVal = get(umap, key);
+                if (retVal) std::cout << *retVal << std::endl;
+                else std::cout << "NOT_FOUND" << std::endl;
             }
-
 
         } else if  (command == "DEL")
         {
-            if (args.size() != 1)
+
+            if (key.empty())
             {
                 std::cout<< "Invalid arguments, correct use: DEL <key>" << std::endl;
             }
             else
             {
-                del(umap, args[0]);
+                std::string retVal;
+                retVal = del(umap, key);
+                std::cout << retVal << std::endl;
             }
 
-            // Prints Map
+        }
+        else if (command == "LIST")
+        {
             print_map(umap);
-
         }
         else
         {

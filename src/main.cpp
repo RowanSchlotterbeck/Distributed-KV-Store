@@ -3,13 +3,46 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <optional>
 
+namespace kv
+{
+    constexpr std::size_t MAX_KEY_LEN   = 256;
+    constexpr std::size_t MAX_VALUE_LEN = 4096;
 
+    inline bool has_whitespace(const std::string& s) {
+        for (unsigned const char c : s) {
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v')
+                return true;
+        }
+        return false;
+    }
+}
 
 // Inserts a key, value pair into the map
-void put(std::unordered_map<std::string, std::string>& map, const std::string& key,  const std::string& value)
+// Doesn't throw exceptions, handles errors internally
+std::optional<std::string> put(std::unordered_map<std::string, std::string>& map, const std::string& key,  const std::string& value) noexcept
 {
-    map[key] = value;
+
+    // Validate input
+    if (key.empty()) return "ERR_EMPTY_KEY";
+    if (key.size() > kv::MAX_KEY_LEN) return "ERR_KEY_TOO_LONG";
+    if (kv::has_whitespace(key))      return "ERR_INVALID_KEY";
+    if (value.size() > kv::MAX_VALUE_LEN) return "ERR_VALUE_TOO_LONG";
+
+    // Guarantees one response, returns "OK" for valid operation
+    try
+    {
+        map.insert_or_assign(key, value);
+        return "OK";
+    } catch (const std::bad_alloc&)
+    {
+        return "ERR_OOM";
+    } catch (...)
+    {
+        return "ERR_INTERNAL";
+    }
+
 }
 
 // Retrieves a value given its key

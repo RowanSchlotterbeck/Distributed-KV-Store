@@ -1,6 +1,5 @@
 #include <iostream>
 #include <unordered_map>
-#include <sstream>
 #include <string>
 #include <algorithm>
 
@@ -26,55 +25,84 @@ static std::string to_upper(std::string s)
     return s;
 }
 
+std::vector<std::string> input_parser(const std::string& line)
+{
+    std::vector<std::string> args;
+    std::string current;
+    bool in_quotes = false;
+
+    for (const char c : line) {
+        if (c == '"') {
+            in_quotes = !in_quotes;
+        } else if (std::isspace(c) && !in_quotes) {
+            if (!current.empty()) {
+                args.push_back(current);
+                current.clear();
+            }
+        } else {
+            current.push_back(c);
+        }
+    }
+
+    if (!current.empty())
+    {
+        args.push_back(current);
+    }
+
+    return args;
+}
 
 std::string execute(
 
     std::unordered_map<std::string, std::string>& map,
-    const std::string& line)
+    const std::vector<std::string>& args)
 {
-    std::string command, key, value;
 
     // Check if line is empty
-    if (line.empty()) return "ERR_EMPTY";
+    if (args.empty())
+    {
+        return "ERR_EMPTY";
+    }
 
-    std::stringstream ss(line);
-    ss >> command;
-    command = to_upper(command);
+    std::string command = to_upper(args[0]);
+
 
     if (command == "EXIT")
     {
         return "EXIT";
     }
 
-    ss >> key;
-    std::getline(ss >> std::ws, value);
 
     if (command == "PUT")
     {
-        if (key.empty() || value.empty())
+        if (args.size() != 3)
+        {
             return "ERR_USAGE PUT <key> <value>";
+        }
 
-        map[key] = value;
+        map[args[1]] = args[2];
         return "OK";
 
     } else if (command == "GET")
     {
-        if (key.empty())
+        if (args.size() != 2)
+        {
             return "ERR_USAGE GET <key>";
+        }
 
-        auto it = map.find(key);
-        if (it == map.end())
-            return "NOT_FOUND";
+        const auto it = map.find(args[1]);
+        return (it != map.end()) ? it->second : "NOT_FOUND";
 
-        return it->second;
 
     } else if  (command == "DEL")
     {
 
-        if (key.empty())
+        if (args.size() != 2)
+        {
             return "ERR_USAGE DEL <key>";
+        }
 
-        return map.erase(key) ? "OK" : "NOT_FOUND";
+        return map.erase(args[1]) ? "OK" : "NOT_FOUND";
 
     } else if (command == "LIST")
     {
@@ -90,9 +118,6 @@ std::string execute(
 
     return "ERR_UNKNOWN_CMD";
 
-
-
-
 }
 
 
@@ -104,9 +129,11 @@ int main ()
     std::string line;
 
     while (std::getline(std::cin, line)) {
-        std::string result = execute(store, line);
+        auto args = input_parser(line);
+        std::string result = execute(store, args);
 
-        if (result == "EXIT") break;
+        if (result == "EXIT")
+            break;
 
         std::cout << result << std::endl;
     }

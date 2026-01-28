@@ -30,10 +30,12 @@ std::vector<std::string> input_parser(const std::string& line)
     std::vector<std::string> args;
     std::string current;
     bool in_quotes = false;
+    int quote_counter = 0;
 
     for (const char c : line) {
         if (c == '"') {
             in_quotes = !in_quotes;
+            quote_counter++;
         } else if (std::isspace(c) && !in_quotes) {
             if (!current.empty()) {
                 args.push_back(current);
@@ -49,8 +51,24 @@ std::vector<std::string> input_parser(const std::string& line)
         args.push_back(current);
     }
 
+    if (args.empty()) return {"Error"};
+
+    if (args[0] == "PUT" && (quote_counter != 4 || args[1].length() > kv::MAX_KEY_LEN || args[2].length() > kv::MAX_VALUE_LEN))
+    {
+        return {"Error"};
+    } else if (args[0] == "GET" && quote_counter != 2)
+    {
+        return {"Error"};
+    } else if (args[0] == "DEL" && quote_counter != 2)
+    {
+        return {"Error"};
+    }
+
+
     return args;
 }
+
+// Must declare any key or value with quotes
 
 std::string execute(
 
@@ -123,14 +141,23 @@ std::string execute(
 
 
 
+
 int main ()
 {
     std::unordered_map<std::string, std::string> store;
     std::string line;
 
     while (std::getline(std::cin, line)) {
+        std::string result;
         auto args = input_parser(line);
-        std::string result = execute(store, args);
+        if (args[0] == "Error")
+        {
+            result = "INPUT_ERROR";
+        } else
+        {
+            result = execute(store, args);
+        }
+
 
         if (result == "EXIT")
             break;

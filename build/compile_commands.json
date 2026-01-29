@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/rowanschlotterbeck/Documents/learning-c-plus-plus/Distributed-KV-Store/build",
+  "command": "/usr/bin/clang++   -g -std=c++17 -arch arm64 -o CMakeFiles/kvstore.dir/src/main.cpp.o -c /Users/rowanschlotterbeck/Documents/learning-c-plus-plus/Distributed-KV-Store/src/main.cpp",
+  "file": "/Users/rowanschlotterbeck/Documents/learning-c-plus-plus/Distributed-KV-Store/src/main.cpp",
+  "output": "CMakeFiles/kvstore.dir/src/main.cpp.o"
+}
+]

@@ -9,13 +9,6 @@ namespace kv
     constexpr std::size_t MAX_KEY_LEN   = 256;
     constexpr std::size_t MAX_VALUE_LEN = 4096;
 
-    inline bool has_whitespace(const std::string& s) {
-        for (unsigned const char c : s) {
-            if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v')
-                return true;
-        }
-        return false;
-    }
 }
 
 // Turns any string into uppercase
@@ -64,6 +57,7 @@ std::vector<std::string> input_parser(const std::string& line)
         return {"Error"};
     }
 
+    // Still need to implement RESP
 
     return args;
 }
@@ -137,10 +131,6 @@ std::string execute(
     return "ERR_UNKNOWN_CMD";
 
 }
-
-
-
-
 
 int main ()
 {

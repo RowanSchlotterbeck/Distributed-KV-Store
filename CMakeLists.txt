@@ -5,4 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(kvstore src/main.cpp)
+add_executable(kvstore src/main.cpp src/parser.cpp
+        src/kv_store.cpp)
+target_include_directories(kvstore PRIVATE ${CMAKE_SOURCE_DIR}/include)
